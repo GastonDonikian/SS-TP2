@@ -1,7 +1,4 @@
-package sistema;
-
-import models.Cell;
-import models.Particle;
+package models;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -50,6 +47,20 @@ forma aleatoria dentro del área de lado L
         for (int[] step : steps) {
             stepList.add(new Point(step[0], step[1]));
         }
+    }
+
+    public Map<Particle, List<Particle>> getInteractingParticles(List<Particle> particleList){
+        List<Particle> newList = particleList;
+        this.resetICM();
+        if ( rowNumber == null)
+            rowNumber = this.calculateRowNumber(newList);
+
+        cellLength = length.doubleValue() / rowNumber;
+        matrix = new Cell[rowNumber][rowNumber];
+
+        setMatrix(newList);
+
+        return neighbors;
     }
 
     public int calculateRowNumber(List<Particle> particleList){
