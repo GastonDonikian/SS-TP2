@@ -1,0 +1,53 @@
+package servicios;
+
+import models.Particle;
+import sistema.ICM;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+
+
+public class InputParser {
+    Integer numberOfParticles;
+    Double length;
+    private List<Particle> particleList = new ArrayList<>();
+
+    public List<Particle> getParticleList() {
+        return particleList;
+    }
+
+    private void parseStatic() throws FileNotFoundException {
+        File staticFile = new File("./staticFile");
+        Scanner scanner = new Scanner(staticFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
+        numberOfParticles = scanner.nextInt();
+        length = scanner.nextDouble();
+        for (int i = 0; i < numberOfParticles; i++) {
+            particleList.add(new Particle(scanner.nextDouble(),i));
+        }
+    }
+
+    public ICM parseToICM(Double radiusC, Boolean isPeriodic, String timeNum) throws FileNotFoundException {
+        this.parseStatic();
+        this.parseDynamic(timeNum);
+        //FALTA DEFINIR EL M Y EL RADIUSC
+        return new ICM(numberOfParticles,length, radiusC,isPeriodic);
+    }
+
+    private void parseDynamic(String timeNum) throws FileNotFoundException {
+        File dynamicFile = new File("./dynamicFile");
+        Scanner scanner = new Scanner(dynamicFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
+        scanner.skip(timeNum);
+        for (Integer i = 0; i < numberOfParticles; i++) {
+            double xDist = scanner.nextDouble();
+            double yDist = scanner.nextDouble();
+            double xSpeed = scanner.nextDouble();
+            double ySpeed = scanner.nextDouble();
+            particleList.get(i).setCoordinateS(xDist, yDist);
+            particleList.get(i).calculateAngle(xSpeed, ySpeed);
+        }
+    }
+}
