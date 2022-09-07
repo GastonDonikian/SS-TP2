@@ -21,12 +21,12 @@ public class InputParser {
     }
 
     private void parseStatic() throws FileNotFoundException {
-        File staticFile = new File("./staticFile");
+        File staticFile = new File("./resources/staticFile");
         Scanner scanner = new Scanner(staticFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
         numberOfParticles = scanner.nextInt();
         length = scanner.nextDouble();
         for (int i = 0; i < numberOfParticles; i++) {
-            particleList.add(new Particle(scanner.nextDouble(),i));
+            particleList.add(new Particle(scanner.nextDouble(), scanner.nextDouble(),i));
         }
     }
 
@@ -38,7 +38,7 @@ public class InputParser {
     }
 
     private void parseDynamic(String timeNum) throws FileNotFoundException {
-        File dynamicFile = new File("./dynamicFile");
+        File dynamicFile = new File("./resources/dynamicFile");
         Scanner scanner = new Scanner(dynamicFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
         scanner.skip(timeNum);
         for (Integer i = 0; i < numberOfParticles; i++) {

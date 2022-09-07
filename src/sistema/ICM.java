@@ -52,23 +52,6 @@ forma aleatoria dentro del área de lado L
         }
     }
 
-    public Map<Particle, List<Particle>> runTesting(List<Particle> particleList){
-        List<Particle> newList = particleList;
-        if(particleList == null || particleList.isEmpty()){
-            newList = generateParticles();
-        }
-
-        if ( rowNumber == null)
-            rowNumber = this.calculateRowNumber(newList);
-
-        cellLength = length.doubleValue() / rowNumber;
-        matrix = new Cell[rowNumber][rowNumber];
-
-        setMatrix(newList);
-
-        return neighbors;
-    }
-
     public int calculateRowNumber(List<Particle> particleList){
         double maxRadius = 0.0;
         for (Particle particle : particleList) {
@@ -199,20 +182,6 @@ forma aleatoria dentro del área de lado L
         matrix[yPosition][xPosition].addParticle(particle);
     }
 
-    private List<Particle> generateParticles(){
-        List<Particle> responseList = new ArrayList<>();
-        Random rand = new Random();
-        for ( int i = 0; i < numberOfParticles; i++){
-            responseList.add(new Particle(
-                    rand.nextDouble() * length,
-                    rand.nextDouble() * length,
-                    0.25/*rand.nextDouble() * cellLength / 2*/,
-                    i,
-                    rand.nextDouble() * 360
-            ));
-        }
-        return responseList;
-    }
     private static final DecimalFormat df = new DecimalFormat("0.00");
 
     public Map<Particle, List<Particle>> bruteForce(List<Particle> part){

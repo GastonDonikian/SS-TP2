@@ -9,24 +9,29 @@ public class Particle {
     private Double angle;
     private Double xSpeed;
     private Double ySpeed;
+    private Double weight;
 
 
-    public Particle(Double x, Double y, Double radius, int id, double angle) {
+    public Particle(Double x, Double y, Double radius, int id, double angle, Double weight) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.id = id;
         this.angle = angle;
+        this.weight = weight;
     }
 
     public void setCoordinateS(Double x, Double y) {
         this.x = x;
         this.y = y;
     }
-    public Particle(Double radius, int id) {
+
+    public Particle(Double radius, double weight, int id) {
         this.radius = radius;
         this.id = id;
+        this.weight = weight;
     }
+
     public Double getX() {
         return x;
     }
