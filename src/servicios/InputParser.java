@@ -1,7 +1,7 @@
 package servicios;
 
 import models.Particle;
-import sistema.ICM;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,13 +30,6 @@ public class InputParser {
         }
     }
 
-    public ICM parseToICM(Double radiusC, Boolean isPeriodic, String timeNum) throws FileNotFoundException {
-        this.parseStatic();
-        this.parseDynamic(timeNum);
-        //FALTA DEFINIR EL M Y EL RADIUSC
-        return new ICM(numberOfParticles,length, radiusC,isPeriodic);
-    }
-
     private void parseDynamic(String timeNum) throws FileNotFoundException {
         File dynamicFile = new File("./resources/dynamicFile");
         Scanner scanner = new Scanner(dynamicFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
@@ -46,7 +39,7 @@ public class InputParser {
             double yDist = scanner.nextDouble();
             double xSpeed = scanner.nextDouble();
             double ySpeed = scanner.nextDouble();
-            particleList.get(i).setCoordinateS(xDist, yDist);
+            particleList.get(i).setCoordinates(xDist, yDist);
             particleList.get(i).calculateAngle(xSpeed, ySpeed);
         }
     }

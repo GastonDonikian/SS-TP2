@@ -21,7 +21,7 @@ public class Particle {
         this.weight = weight;
     }
 
-    public void setCoordinateS(Double x, Double y) {
+    public void setCoordinates(Double x, Double y) {
         this.x = x;
         this.y = y;
     }
