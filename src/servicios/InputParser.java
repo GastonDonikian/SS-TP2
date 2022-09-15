@@ -1,7 +1,7 @@
 package servicios;
 
-import models.Particle;
 
+import models.Particle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-
 public class InputParser {
     Integer numberOfParticles;
     Double length;
-    private List<Particle> particleList = new ArrayList<>();
+    private final List<Particle> particleList = new ArrayList<>();
 
     public List<Particle> getParticleList() {
         return particleList;

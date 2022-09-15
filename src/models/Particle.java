@@ -100,4 +100,12 @@ public class Particle {
     public Double getYSpeed() {
         return ySpeed;
     }
+
+    public void setXSpeed(Double xSpeed) {
+        this.xSpeed = xSpeed;
+    }
+
+    public void setYSpeed(Double ySpeed) {
+        this.ySpeed = ySpeed;
+    }
 }

@@ -1,32 +1,32 @@
 package sistema;
 
-import models.Particle;
-import servicios.InputParser;
-
+import models.*;
+import servicios.*;
 import java.util.List;
-import java.util.Map;
 
 public class EventDrivenParticles {
     List<Particle> particleList;
     double EPSILON = 0.01;
     Particle particle1;
     Particle particle2;
+    Particle wallParticle;
+    Boolean wallCrash = false;
+    Boolean isVertical = false;
 
     public void runSimulation() {
         InputParser inputParser = new InputParser();
         this.particleList = inputParser.getParticleList();
         double time;
         for(int i = 0; i < 100; i++) {
-            time = calculateNextParticleCrash(particleList);
+            time = calculateMinCrashTime(particleList);
             printToOutput(particleList);
             evolveAllParticles(time);
-
         }
     }
     private void printToOutput(List<Particle> particleList) {
         System.out.println("Hola");
     }
-    private Double calculateCrash(Particle particle1,Particle particle2) {
+    private Double calculateCrashTime(Particle particle1, Particle particle2) {
         ///TODO: LEAN EL PPT: SLIDE 14 Y CONFIRMEN QUE ESTO ESTE BIEN, LOQUITAS
         //TODO: FALTA TIEMPO DE CHOQUE CON PAREDES
         double delta_r_x = particle2.getX() - particle1.getX();
@@ -61,7 +61,7 @@ public class EventDrivenParticles {
             for(Particle particle2: particleList) {
                 if (particle1 == particle2)
                     continue;
-                aux = calculateCrash(particle1,particle2);
+                aux = calculateCrashTime(particle1,particle2);
                 if(aux != null && minTime - aux < EPSILON) {
                     minTime = aux;
                     this.particle1 = particle1;
@@ -73,12 +73,110 @@ public class EventDrivenParticles {
     }
 
     public void crashParticles(){
-
+        if ( wallCrash ){
+            if ( isVertical ){
+                wallParticle.setYSpeed(wallParticle.getYSpeed() * -1);
+            }
+            else {
+                wallParticle.setXSpeed(wallParticle.getXSpeed() * -1);
+            }
+        }
+        else {
+            //TODO calcular colisiones entre particulas
+        }
     }
 
     public void evolveAllParticles(Double time) {
         for(Particle particle : particleList) {
             particle.setCoordinates(particle.getX() + time * particle.getXSpeed(),particle.getY() + time * particle.getYSpeed());
         }
+    }
+
+    public double calculateMinCrashTime(List<Particle> particleList){
+        double minTime = Double.MAX_VALUE;
+        for (Particle particle: particleList){
+            double wallCrashTime = getParticleWallCrashTime(particle);
+            double particleCrashTime = getParticleCrashTime(particle, particleList, minTime);
+
+            if ( Math.abs(particleCrashTime - minTime) < EPSILON ){
+                minTime = particleCrashTime;
+                wallCrash = false;
+            }
+            if ( Math.abs(wallCrashTime - minTime) < EPSILON ){
+                minTime = wallCrashTime;
+                wallParticle = particle;
+                wallCrash = true;
+            }
+
+        }
+
+        return minTime;
+    }
+
+    public double getParticleWallCrashTime(Particle particle){
+        double leftWallX = 0;
+        double rightWallX = 0.24;
+        double middleWallX = 0.12;
+        double bottomWallY = 0;
+        double topWallY = 0.09;
+        double cavitySize = 0.01;
+        double bottomSpaceY = (topWallY/2) - (cavitySize/2);
+        double topSpaceY = (topWallY/2) + (cavitySize/2);
+
+        double yCrashTime = Double.MAX_VALUE;
+        double xCrashTime = Double.MAX_VALUE;
+
+        //Chequeo en Y
+        if ( particle.getYSpeed() > 0){
+            yCrashTime = (topWallY - (particle.getY() + particle.getRadius()) )/particle.getYSpeed();
+        }
+        else if (particle.getYSpeed() < 0){
+            yCrashTime = (particle.getY() - particle.getRadius())/particle.getYSpeed();
+        }
+
+        //Chequeo en X
+        if ( particle.getXSpeed() > 0){
+            if ( ((particle.getY() + particle.getRadius()) >= topSpaceY || (particle.getY() - particle.getRadius()) <= bottomSpaceY) && particle.getX() < middleWallX){
+                xCrashTime = (middleWallX - (particle.getX() + particle.getRadius()) )/particle.getXSpeed();
+            }
+            else {
+                xCrashTime = (rightWallX - (particle.getX() + particle.getRadius()) )/particle.getXSpeed();
+            }
+        }
+        else if ( particle.getXSpeed() < 0){
+            if ( ((particle.getY() + particle.getRadius()) < topSpaceY && (particle.getY() - particle.getRadius()) > bottomSpaceY) || particle.getX() < middleWallX){
+                //pasa por la rendija
+                xCrashTime = (particle.getX() - particle.getRadius())/particle.getXSpeed();
+            }
+            else {
+                xCrashTime = (particle.getX() - particle.getRadius() - middleWallX )/particle.getXSpeed();
+            }
+        }
+
+        if ( xCrashTime < yCrashTime){
+            isVertical = false;
+            return xCrashTime;
+        }
+        else {
+            isVertical = true;
+            return yCrashTime;
+        }
+    }
+
+    public double getParticleCrashTime(Particle particle, List<Particle> particles, Double minTime){
+        Double minTimeAux = Double.MAX_VALUE;
+        for(Particle p: particles) {
+            if (p == particle)
+                continue;
+            Double time = calculateCrashTime(p,particle);
+            if (time != null && Math.abs(time - minTimeAux) < EPSILON){
+                minTimeAux = time;
+                if ( minTimeAux < minTime){
+                    this.particle1 = p;
+                    this.particle2 = particle;
+                }
+            }
+        }
+        return minTimeAux;
     }
 }

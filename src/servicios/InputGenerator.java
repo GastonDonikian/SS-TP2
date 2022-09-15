@@ -41,7 +41,7 @@ public class InputGenerator{
             stringBuilder.append("\n");
         }
         File file = new File("./resources/staticFile");
-        FileWriter fileWriter = new FileWriter("./resources/staticFile");
+        FileWriter fileWriter = new FileWriter("./staticFile");
         fileWriter.write(stringBuilder.toString());
         fileWriter.close();
     }
@@ -63,7 +63,7 @@ public class InputGenerator{
             stringBuilder.append("\n");
         }
         File file = new File("./resources/dynamicFile");
-        FileWriter fileWriter = new FileWriter("./resources/dynamicFile");
+        FileWriter fileWriter = new FileWriter("./dynamicFile");
         fileWriter.write(stringBuilder.toString());
         fileWriter.close();
     }
