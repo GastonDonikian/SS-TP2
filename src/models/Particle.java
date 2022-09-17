@@ -28,8 +28,8 @@ public class Particle {
 
     public Particle(Double radius, double weight, int id) {
         this.radius = radius;
-        this.id = id;
         this.weight = weight;
+        this.id = id;
     }
 
     public Double getX() {
@@ -99,6 +99,10 @@ public class Particle {
 
     public Double getYSpeed() {
         return ySpeed;
+    }
+
+    public Double getWeight() {
+        return weight;
     }
 
     public void setXSpeed(Double xSpeed) {
