@@ -67,8 +67,8 @@ public class Particle {
     }
     public void setVelocity(double speed,double angle){
         setAngle(angle);
-        setXSpeed(speed);
-        setYSpeed(speed);
+        setXSpeedWithAngle(speed);
+        setYSpeedWithAngle(speed);
     }
 
     private void setAngle(double angle){
@@ -81,11 +81,11 @@ public class Particle {
         this.angle = Math.atan2(this.ySpeed, this.xSpeed);
     }
 
-    private void setXSpeed(double speed) {
+    private void setXSpeedWithAngle(double speed) {
         this.xSpeed = speed * Math.cos(this.angle);
     }
 
-    private void setYSpeed(double speed) {
+    private void setYSpeedWithAngle(double speed) {
         this.ySpeed = speed * Math.sin(this.angle);
     }
 

@@ -10,13 +10,21 @@ import java.util.List;
 
 public class EventDrivenParticles {
     List<Particle> particleList;
-    double EPSILON = 0.01;
     Particle particle1;
     Particle particle2;
     Particle wallParticle;
     Boolean wallCrash = false;
     Boolean isVertical = false;
     List<List<Particle>> particlesThroughTime = new ArrayList<>();
+    Double x;
+    Double y;
+    Double cavitySize;
+
+    public EventDrivenParticles(Double x, Double y, Double cavitySize) {
+        this.x = x;
+        this.y = y;
+        this.cavitySize = cavitySize;
+    }
 
     public void runSimulation() throws IOException {
         InputParser inputParser = new InputParser();
@@ -70,6 +78,7 @@ public class EventDrivenParticles {
         return - (delta_v_r + Math.sqrt(d))/v_squared;
     }
 
+    /*
     public double calculateNextParticleCrash(List<Particle> particleList) {
         Double minTime = Double.MAX_VALUE;
         Double aux;
@@ -87,7 +96,7 @@ public class EventDrivenParticles {
         }
         return minTime;
     }
-
+*/
     public void crashParticles(){
         if ( wallCrash ){
             crashWallParticles();
@@ -155,11 +164,10 @@ public class EventDrivenParticles {
 
     public double getParticleWallCrashTime(Particle particle){
         double leftWallX = 0;
-        double rightWallX = 0.24;
-        double middleWallX = 0.12;
+        double rightWallX = x;
+        double middleWallX = x/2;
         double bottomWallY = 0;
-        double topWallY = 0.09;
-        double cavitySize = 0.01;
+        double topWallY = y;
         double bottomSpaceY = (topWallY/2) - (cavitySize/2);
         double topSpaceY = (topWallY/2) + (cavitySize/2);
 
