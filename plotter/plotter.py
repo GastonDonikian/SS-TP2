@@ -116,14 +116,24 @@ def get_fp_array(events):
     return fp_array
 
 
-if __name__ == '__main__':
-    event_array, event_counter = get_every_N_events(20,'../resources/outputFile')
-    time_array = []
-    for i in range(event_counter):
-        time_array.append(i*20)
-    plt.plot(time_array,  get_fp_array(event_array))
-    plt.plot(time_array,map(lambda x : 1 - x,  get_fp_array(event_array)))
+def plot_fp_vs_time( file_name):
+    event_array, event_counter = get_all_events(file_name)
+    fp_array = get_fp_array(event_array)
+    time_array = map(lambda x: x.time, event_array)
+    plt.plot(time_array,fp_array)
+    plt.plot(time_array, map(lambda x: 1 - x, fp_array))
+
+
+def plot_all_fp_time():
+    plot_fp_vs_time('../resources/outputFile')
+    # plot_fp_vs_time('../resources/outputFile')
+    # plot_fp_vs_time('../resources/outputFile')
     plt.title("Fp vs Events")
     plt.xlabel("Events")
     plt.ylabel("fp")
+    plt.legend(['N = 50', 'N = 100', 'N = 150'])
     plt.show()
+
+
+if __name__ == '__main__':
+    plot_all_fp_time()
