@@ -63,6 +63,7 @@ public class Particle {
                 ", Vy=" + ySpeed +
                 ", angle=" + angle + " rad" +
                 ", angle=" + angle * (180 / Math.PI) + "º" +
+                ", weight= " + weight +
                 '}' + '\n';
     }
     public void setVelocity(double speed,double angle){

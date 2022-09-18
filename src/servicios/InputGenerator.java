@@ -29,10 +29,8 @@ public class InputGenerator{
         this.weight = weight;
     }
 
-    public static void main(String[] args) throws IOException {
-        new InputGenerator(100, 0.24, 0.09, 0.01, 0.0015, 0.001, 1.0).generate() ;
-    }
     public void generate() throws IOException {
+        this.generateParticleList();
         this.staticFile();
         this.dynamicFile();
     }
@@ -84,10 +82,10 @@ public class InputGenerator{
 
     private void generateParticleList() {
         while (particles.size() < numberOfParticles) {
-            double possibleX = Math.random()*xLength/2;
+            double possibleX = Math.random()*xLength/2.0;
             double possibleY = Math.random()*yLength;
             if (checkCoordinates(possibleX, possibleY)) {
-                Particle p = new Particle(possibleX, possibleY, radiusLimit, 1, Math.random()*2*Math.PI, weight);
+                Particle p = new Particle(possibleX, possibleY, radiusLimit, particles.size() + 1, Math.random()*2*Math.PI, weight);
                 p.setVelocity(speed, p.getAngle());
                 particles.add(p);
             }
@@ -109,8 +107,11 @@ public class InputGenerator{
 
     private boolean checkParticles(double x, double y){
         for (Particle particle : particles) {
-            if (Math.abs(particle.getX() - x) <= 2*radiusLimit || Math.abs(particle.getY() - y) <= 2*radiusLimit)
+            Double x2 = Math.pow(particle.getX() - x, 2);
+            Double y2 = Math.pow(particle.getY() - y, 2);
+            if (x2 + y2 <= Math.pow(2*radiusLimit, 2)){
                 return false;
+            }
         }
         return true;
     }

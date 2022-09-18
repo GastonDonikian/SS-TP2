@@ -12,25 +12,34 @@ import java.util.Scanner;
 
 public class InputParser {
     Integer numberOfParticles;
-    Double length;
+    Double x;
+    Double y;
+    Double radius;
     private final List<Particle> particleList = new ArrayList<>();
+
+    public InputParser() throws FileNotFoundException {
+        this.parseStatic();
+        this.parseDynamic("t0");
+    }
 
     public List<Particle> getParticleList() {
         return particleList;
     }
 
     private void parseStatic() throws FileNotFoundException {
-        File staticFile = new File("./resources/staticFile");
+        File staticFile = new File("./staticFile");
         Scanner scanner = new Scanner(staticFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
         numberOfParticles = scanner.nextInt();
-        length = scanner.nextDouble();
+        x = scanner.nextDouble();
+        y = scanner.nextDouble();
+        radius = scanner.nextDouble();
         for (int i = 0; i < numberOfParticles; i++) {
-            particleList.add(new Particle(scanner.nextDouble(), scanner.nextDouble(),i));
+            particleList.add(new Particle(scanner.nextDouble(), scanner.nextDouble(),i+1));
         }
     }
 
     private void parseDynamic(String timeNum) throws FileNotFoundException {
-        File dynamicFile = new File("./resources/dynamicFile");
+        File dynamicFile = new File("./dynamicFile");
         Scanner scanner = new Scanner(dynamicFile).useLocale(Locale.ENGLISH); //Cambiar al file que sea...
         scanner.skip(timeNum);
         for (Integer i = 0; i < numberOfParticles; i++) {
