@@ -2,9 +2,34 @@ package servicios;
 
 import sistema.EventDrivenParticles;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class main {
+    public static void makeOvitoCage(Double x, Double y, Double cavitySize) throws IOException {
+        Double wallRadius = 0.001;
+        int particles = 0;
+        FileWriter fileWriter = new FileWriter("./resources/ovitoWallFile");
+        StringBuilder ovitoCage = new StringBuilder();
+        for(int i = 0; i*wallRadius < x;i++) {
+            particles +=2;
+            ovitoCage.append(i*wallRadius).append(' ').append("0.0").append('\n');
+            ovitoCage.append(i*wallRadius).append(' ').append(y).append('\n');
+        }
+        for(int i = 0; i*wallRadius < y;i++) {
+            ovitoCage.append("0.0").append(' ').append(i*wallRadius).append('\n');
+            ovitoCage.append(x).append(' ').append(i*wallRadius).append('\n');
+            particles +=2;
+            if(Math.abs(i*wallRadius - (y/2)) > cavitySize) {
+                particles += 1;
+                ovitoCage.append(x / 2).append(' ').append(i * wallRadius).append('\n');
+            }
+        }
+        ovitoCage.insert(0, particles + "\n\n");
+        fileWriter.write(ovitoCage.toString());
+        fileWriter.close();
+    }
     public static void main(String[] args) throws IOException {
         Integer N = 50;
         Double v = 0.01;
@@ -38,7 +63,9 @@ public class main {
         }
         InputGenerator inputGenerator = new InputGenerator(N, x, y, cavitySize, radius, v, weight);
         inputGenerator.generate();
-        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize);
+        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize,20);
         eventDrivenParticlesSimulation.runSimulation();
+        //makeOvitoCage(x,y,cavitySize);
+        //No la creo cada vez, solo cuando cambien el x, y o cavitySize jeje
     }
 }

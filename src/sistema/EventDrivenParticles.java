@@ -24,11 +24,24 @@ public class EventDrivenParticles {
     Particle wallParticle;
     Boolean wallCrash = false;
     Boolean isVertical = false;
+    Double timeInterval = null;
+    Integer eventInterval = null;
 
-    public EventDrivenParticles(Double x, Double y, Double cavitySize) {
+    Double lastTimeSaved = 0.0;
+    Integer lastEvent = 0;
+
+    public EventDrivenParticles(Double x, Double y, Double cavitySize,Double timeInterval) {
         this.x = x;
         this.y = y;
         this.cavitySize = cavitySize;
+        this.timeInterval = timeInterval;
+    }
+
+    public EventDrivenParticles(Double x, Double y, Double cavitySize,Integer eventInterval) {
+        this.x = x;
+        this.y = y;
+        this.cavitySize = cavitySize;
+        this.eventInterval = eventInterval;
     }
 
     public void runSimulation() throws IOException {
@@ -70,6 +83,11 @@ public class EventDrivenParticles {
     }
 
     private void saveState(List<Particle> particles) {
+
+        if( (this.eventInterval == null) && (lastTimeSaved + timeInterval > globalTime) ||
+                ((this.timeInterval == null) && (lastEvent++ % eventInterval != 0)))
+            return;
+        lastTimeSaved = globalTime;
         List<Particle> auxList = new ArrayList<>();
         for (Particle particle : particles) {
             Particle auxParticle = new Particle(particle.getX(), particle.getY(), particle.getRadius(), particle.getId(), particle.getAngle(), particle.getWeight());
@@ -77,8 +95,7 @@ public class EventDrivenParticles {
             auxParticle.setYSpeed(particle.getYSpeed());
             auxList.add(auxParticle);
         }
-
-        timeThroughEvents.add(globalTime.doubleValue());
+        timeThroughEvents.add(globalTime);
         particlesThroughTime.add(auxList);
     }
 
