@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class main {
     public static void main(String[] args) throws IOException {
-        Integer N = 200;
+        Integer N = 50;
         Double v = 0.01;
         Double x = 0.24;
         Double y = 0.09;
@@ -39,7 +39,6 @@ public class main {
         InputGenerator inputGenerator = new InputGenerator(N, x, y, cavitySize, radius, v, weight);
         inputGenerator.generate();
         EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize);
-        System.out.println("run simulation");
         eventDrivenParticlesSimulation.runSimulation();
     }
 }

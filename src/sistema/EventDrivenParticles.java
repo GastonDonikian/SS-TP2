@@ -10,6 +10,7 @@ import java.util.*;
 public class EventDrivenParticles {
     List<Particle> particleList;
     List<List<Particle>> particlesThroughTime = new ArrayList<>();
+    List<Double> timeThroughEvents = new ArrayList<>();
     Double x;
     Double y;
     Double cavitySize;
@@ -34,7 +35,7 @@ public class EventDrivenParticles {
         InputParser inputParser = new InputParser();
         this.particleList = inputParser.getParticleList();
 
-        FileWriter fileWriter = new FileWriter("./Output");
+        FileWriter fileWriter = new FileWriter("./resources/outputFile");
         double evolveTime;
         saveState(particleList);
         int i = 0;
@@ -65,8 +66,6 @@ public class EventDrivenParticles {
             else if (particle.getX() > x/2)
                 rightSide++;
         }
-
-        System.out.println( i + " Epsilon: " + ((double) leftSide / (leftSide + rightSide)));
         return Math.abs(((double) leftSide / (leftSide + rightSide)) - 0.5) > epsilon;
     }
 
@@ -78,6 +77,8 @@ public class EventDrivenParticles {
             auxParticle.setYSpeed(particle.getYSpeed());
             auxList.add(auxParticle);
         }
+
+        timeThroughEvents.add(globalTime.doubleValue());
         particlesThroughTime.add(auxList);
     }
 
@@ -88,7 +89,7 @@ public class EventDrivenParticles {
         for (int i = 0; i < particlesThroughTime.size(); i++) {
             currentParticles = particlesThroughTime.get(i);
             s.append(particleSize).append("\n");
-            s.append("t").append(progress).append("\n");
+            s.append("t ").append(timeThroughEvents.get(progress).toString()).append(" event ").append(progress).append("\n");
             for (Particle particle : currentParticles)
                 s.append(particle.getX()).append(" ").append(particle.getY()).append(" ").append(particle.getXSpeed()).append(" ").append(particle.getYSpeed()).append("\n");
             progress++;
