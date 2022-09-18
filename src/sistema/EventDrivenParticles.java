@@ -27,6 +27,10 @@ public class EventDrivenParticles {
     Double timeInterval = null;
     Integer eventInterval = null;
 
+    double delta_t = 2000;
+
+    boolean isFinished = false;
+
     Double lastTimeSaved = 0.0;
     Integer lastEvent = 0;
 
@@ -52,23 +56,52 @@ public class EventDrivenParticles {
         double evolveTime;
         saveState(particleList);
         int i = 0;
-        while (canRun(i++)){
+        boolean writing = true;
+        double cutTime = 0;
+        double totalImpulse = 0;
+
+        while (!isFinished){
+            i++;
+            System.out.println("i: " + i);
             evolveTime = calculateMinCrashTime(particleList);
             //System.out.println("GlobalTime: " + globalTime + " evolveTime: " + evolveTime + " nextglobal: " + (globalTime + evolveTime));
             globalTime += evolveTime;
             evolveAllParticles(evolveTime);
             saveState(particleList);
             crashParticles();
-            if ( i % 10000 == 0 && i > 0 ){
+            if (writing && canRun()) {
+                if (i % 10000 == 0 && i > 0) {
+                    getOutputString(fileWriter);
+                    particlesThroughTime = new ArrayList<>();
+                }
+            } else if (writing) {
                 getOutputString(fileWriter);
-                particlesThroughTime = new ArrayList<>();
+                writing = false;
+                cutTime = globalTime;
+            } else {
+                if (globalTime >= cutTime+delta_t) {
+                    isFinished = true;
+                } else if (wallCrash) {
+                    System.out.println("x: " + wallParticle.getX() + ", y: " + wallParticle.getY());
+                    if (isVertical) {
+                        totalImpulse += wallParticle.getWeight()*Math.abs(wallParticle.getYSpeed())*2;
+                    } else {
+                        totalImpulse += wallParticle.getWeight()*Math.abs(wallParticle.getXSpeed())*2;
+                    }
+                }
             }
-        };
-        getOutputString(fileWriter);
+        }
         fileWriter.close();
+
+        double perimeter = 4*y + 2*x - 2*cavitySize;
+        double totalPressure = totalImpulse/(delta_t*perimeter);
+        double temperature = particleList.get(0).getWeight()*(Math.pow(particleList.get(0).getXSpeed(), 2)+Math.pow(particleList.get(0).getYSpeed(), 2))/2;
+        temperature = Math.pow(0.01, 2)/2;
+        System.out.println("speed: " + (Math.pow(particleList.get(0).getXSpeed(), 2)+Math.pow(particleList.get(0).getYSpeed(), 2)));
+        System.out.println("totalPressure: " + totalPressure + ", temperature: " + temperature + ", t/p: " + temperature/totalPressure);
     }
 
-    private boolean canRun(int i){
+    private boolean canRun(){
         int leftSide = 0;
         int rightSide = 0;
         double epsilon = 0.01;
@@ -103,12 +136,12 @@ public class EventDrivenParticles {
         StringBuilder s = new StringBuilder();
         List<Particle> currentParticles;
         Integer particleSize = particlesThroughTime.get(0).size();
-        for (int i = 0; i < particlesThroughTime.size(); i++) {
-            currentParticles = particlesThroughTime.get(i);
+        for (List<Particle> particles : particlesThroughTime) {
+            currentParticles = particles;
             s.append(particleSize).append("\n");
             s.append("t ").append(timeThroughEvents.get(progress).toString()).append(" event ").append(progress).append("\n");
             for (Particle particle : currentParticles)
-                s.append(particle.getX()).append(" ").append(particle.getY()).append(" ").append(particle.getXSpeed()).append(" ").append(particle.getYSpeed()).append("\n");
+                s.append(particle.getX()).append(" ").append(particle.getY()).append("\n");
             progress++;
         }
         fileWriter.write(s.toString());
@@ -174,22 +207,31 @@ public class EventDrivenParticles {
         double delta_v_y = particle2.getYSpeed() - particle1.getYSpeed();
         double delta_v_r = delta_v_x*delta_r_x + delta_v_y*delta_r_y;
         double sigma = particle2.getRadius() + particle1.getRadius();
-        double j = (2*particle1.getWeight()*particle2.getWeight()*delta_v_r)/(sigma*(particle1.getWeight()+particle2.getWeight()));
+        double j = (2.0*particle1.getWeight()*particle2.getWeight()*delta_v_r)/(sigma*(particle1.getWeight()+particle2.getWeight()));
         double j_x = j*delta_r_x/sigma;
         double j_y = j*delta_r_y/sigma;
         double p1_xSpeed = particle1.getXSpeed() + j_x/particle1.getWeight();
         double p1_ySpeed = particle1.getYSpeed() + j_y/particle1.getWeight();
         double p2_xSpeed = particle2.getXSpeed() - j_x/particle2.getWeight();
         double p2_ySpeed = particle2.getYSpeed() - j_y/particle2.getWeight();
-        if ( Math.pow(p1_xSpeed, 2) + Math.pow(p1_ySpeed, 2) > 1 || Math.pow(p2_xSpeed, 2) + Math.pow(p2_ySpeed, 2) > 1){
+        double a = Math.pow(particle1.getX() - particle2.getX(), 2) + Math.pow(particle1.getY() - particle2.getY(), 2);
+        double b = Math.pow(particle1.getRadius() + particle2.getRadius(), 2);
+        if (Math.abs(a - b) > 0.01) {
+            System.out.println(a + " == " + b);
+            throw new IllegalStateException();
+        }
+        double p1_v = Math.sqrt(Math.pow(particle1.getXSpeed(), 2) + Math.pow(particle1.getYSpeed(), 2));
+        System.out.println("velocity dif: " + p1_ySpeed + " -> " + (Math.sqrt(p1_v-Math.pow(p1_xSpeed, 2))));
+        if ( Math.pow(p1_xSpeed, 2) + Math.pow(p1_ySpeed, 2) > 0.0002 || Math.pow(p2_xSpeed, 2) + Math.pow(p2_ySpeed, 2) > 0.0002){
             System.out.println("P1x: "+  particle1.getX() + " P1y: " + particle1.getY() + "xspeed: " + particle1.getXSpeed() + " yspeed: " + particle1.getYSpeed());
             System.out.println("P2x: "+  particle2.getX() + " P2y: " + particle2.getY() + "xspeed: " + particle2.getXSpeed() + " yspeed: " + particle2.getYSpeed());
             System.out.println("JX: " + j_x + " JY: " + j_y + " J: " + j);
             System.out.println("P1xSpeed: " + p1_xSpeed + " P1ySpeed: " + p1_ySpeed + " P2xSpeed: " + p2_xSpeed + " P2ySpeed: " + p2_ySpeed);
 
-            double a = Math.pow(particle1.getX() - particle2.getX(), 2) + Math.pow(particle1.getY() - particle2.getY(), 2);
-            double b = Math.pow(particle1.getRadius() + particle2.getRadius(), 2);
-            System.out.println(a + " == " + b);
+            //double a = Math.pow(particle1.getX() - particle2.getX(), 2) + Math.pow(particle1.getY() - particle2.getY(), 2);
+            //double b = Math.pow(particle1.getRadius() + particle2.getRadius(), 2);
+            System.out.println(" segundo" + a + "==" + b);
+            throw new IllegalStateException();
         }
         particle1.setXSpeed(p1_xSpeed);
         particle1.setYSpeed(p1_ySpeed);
