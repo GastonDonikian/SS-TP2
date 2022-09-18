@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import numpy
 LEFT_SIDE = 0.12
 
 
@@ -116,13 +116,34 @@ def get_fp_array(events):
     return fp_array
 
 
-def plot_fp_vs_time( file_name):
+def plot_fp_vs_time(file_name):
     event_array, event_counter = get_all_events(file_name)
     fp_array = get_fp_array(event_array)
     time_array = map(lambda x: x.time, event_array)
-    plt.plot(time_array,fp_array)
+    plt.plot(time_array, fp_array)
     plt.plot(time_array, map(lambda x: 1 - x, fp_array))
 
+
+def get_finish_time(file_name):
+    return get_all_events(file_name)[-1].time
+
+
+def get_finish_and_error_time(time_array):
+    return numpy.average(time_array), numpy.std(time_array)
+
+
+def plot_time_vs_N(folderName,N):
+    time_array = []
+    for i in range(N):
+        time_array.append(folderName + '/outputFile' + str(i))
+    average, std = get_finish_and_error_time(time_array)
+    plt.errorbar([N],average, yerr=[std])
+
+
+def plot_all_time_vs_N():
+    plot_time_vs_N('../resources/N=50/',50)
+    plot_time_vs_N('../resources/N=100/',100)
+    plot_time_vs_N('../resources/N=150/',150)
 
 def plot_all_fp_time():
     plot_fp_vs_time('../resources/outputFile')
