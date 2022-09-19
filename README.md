@@ -1,10 +1,12 @@
-##Parte 1:
-    
- Cambiar InputParser e InputGenerator para el formato actual y mandarlo a /out
- 
-Hacer funcion para ver particula que antes interactua, depende de ICM y si no encuentra, bruteforce.
-Hay que hacer que la interaccoin considere las paredes tambien.
+#Ejecución del código
 
-Hacerlas interactuar
+## Parámetros:
+-   v: módulo de la velocidad
+-   N: Cantidad de partículas
+-   x: Ancho de la jaula
+-   y: Altura de la jaula
+-   radius: Radio de la partícula
+-   cavitySize: Ancho de la rendija central
+-   weight: Peso de la partícula
 
-Repetir
+Ejemplo de parámetros: -v 0.01 -N 100 -radius 0.0015 -x 0.24 -y 0.09 -cavitySize 0.01 -weight 1.0

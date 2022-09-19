@@ -18,4 +18,7 @@ plotter/noiseoverVaMean
 plotter/noiseVariationDataset
 plotter/densityVariationDataset
 Output
+/out/*
+*/*.class
+/resources/*
 

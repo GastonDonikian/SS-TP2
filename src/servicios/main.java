@@ -21,7 +21,7 @@ public class main {
             ovitoCage.append("0.0").append(' ').append(i*wallRadius).append('\n');
             ovitoCage.append(x).append(' ').append(i*wallRadius).append('\n');
             particles +=2;
-            if(Math.abs(i*wallRadius - (y/2)) > cavitySize) {
+            if(Math.abs(i*wallRadius - (y/2)) > cavitySize/2) {
                 particles += 1;
                 ovitoCage.append(x / 2).append(' ').append(i * wallRadius).append('\n');
             }
@@ -63,9 +63,9 @@ public class main {
         }
         InputGenerator inputGenerator = new InputGenerator(N, x, y, cavitySize, radius, v, weight);
         inputGenerator.generate();
-        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize,20);
+        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize,1);
         eventDrivenParticlesSimulation.runSimulation();
-        //makeOvitoCage(x,y,cavitySize);
+        makeOvitoCage(x,y,cavitySize);
         //No la creo cada vez, solo cuando cambien el x, y o cavitySize jeje
     }
 }

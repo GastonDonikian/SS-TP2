@@ -27,7 +27,7 @@ public class EventDrivenParticles {
     Double timeInterval = null;
     Integer eventInterval = null;
 
-    double delta_t = 2000;
+    double delta_t = 0;
 
     boolean isFinished = false;
 
@@ -51,6 +51,12 @@ public class EventDrivenParticles {
     public void runSimulation() throws IOException {
         InputParser inputParser = new InputParser();
         this.particleList = inputParser.getParticleList();
+        Particle p1 = new Particle(x/2, y/2-cavitySize/2, 0.0, -1, 0, 0.0);
+        p1.setVelocity(0, p1.getAngle());
+        particleList.add(p1);
+        Particle p2 = new Particle(x/2, y/2+cavitySize/2, 0.0, -2, 0, 0.0);
+        p2.setVelocity(0, p2.getAngle());
+        particleList.add(p2);
 
         FileWriter fileWriter = new FileWriter("./resources/outputFile");
         double evolveTime;
@@ -62,7 +68,7 @@ public class EventDrivenParticles {
 
         while (!isFinished){
             i++;
-            System.out.println("i: " + i);
+
             evolveTime = calculateMinCrashTime(particleList);
             //System.out.println("GlobalTime: " + globalTime + " evolveTime: " + evolveTime + " nextglobal: " + (globalTime + evolveTime));
             globalTime += evolveTime;
@@ -135,13 +141,16 @@ public class EventDrivenParticles {
     private void getOutputString(FileWriter fileWriter) throws IOException {
         StringBuilder s = new StringBuilder();
         List<Particle> currentParticles;
-        Integer particleSize = particlesThroughTime.get(0).size();
+        Integer particleSize = particlesThroughTime.get(0).size()-2;
         for (List<Particle> particles : particlesThroughTime) {
             currentParticles = particles;
             s.append(particleSize).append("\n");
             s.append("t ").append(timeThroughEvents.get(progress).toString()).append(" event ").append(progress).append("\n");
-            for (Particle particle : currentParticles)
-                s.append(particle.getX()).append(" ").append(particle.getY()).append("\n");
+            for (Particle particle : currentParticles) {
+                if (particle.getId() >= 0) {
+                    s.append(particle.getX()).append(" ").append(particle.getY()).append("\n");
+                }
+            }
             progress++;
         }
         fileWriter.write(s.toString());
@@ -162,32 +171,16 @@ public class EventDrivenParticles {
         return - (delta_v_r + Math.sqrt(d))/v_squared;
     }
 
-    /*
-    public double calculateNextParticleCrash(List<Particle> particleList) {
-        Double minTime = Double.MAX_VALUE;
-        Double aux;
-        for(Particle particle1 : particleList) {
-            for(Particle particle2: particleList) {
-                if (particle1 == particle2)
-                    continue;
-                aux = calculateCrashTime(particle1,particle2);
-                if(aux != null && minTime - aux < EPSILON) {
-                    minTime = aux;
-                    this.particle1 = particle1;
-                    this.particle2 = particle2;
-                }
-            }
-        }
-        return minTime;
-    }
-*/
-
     public void crashParticles(){
         if ( wallCrash ){
             crashWallParticles();
         }
         else {
-            crashTwoParticles(particle1, particle2);
+            if (particle1.getId() >= 0 && particle2.getId() >= 0) {
+                crashTwoParticles(particle1, particle2);
+            } else {
+                crashMiddle(particle1, particle2);
+            }
         }
     }
 
@@ -214,29 +207,30 @@ public class EventDrivenParticles {
         double p1_ySpeed = particle1.getYSpeed() + j_y/particle1.getWeight();
         double p2_xSpeed = particle2.getXSpeed() - j_x/particle2.getWeight();
         double p2_ySpeed = particle2.getYSpeed() - j_y/particle2.getWeight();
-        double a = Math.pow(particle1.getX() - particle2.getX(), 2) + Math.pow(particle1.getY() - particle2.getY(), 2);
-        double b = Math.pow(particle1.getRadius() + particle2.getRadius(), 2);
-        if (Math.abs(a - b) > 0.01) {
-            System.out.println(a + " == " + b);
-            throw new IllegalStateException();
-        }
-        double p1_v = Math.sqrt(Math.pow(particle1.getXSpeed(), 2) + Math.pow(particle1.getYSpeed(), 2));
-        System.out.println("velocity dif: " + p1_ySpeed + " -> " + (Math.sqrt(p1_v-Math.pow(p1_xSpeed, 2))));
-        if ( Math.pow(p1_xSpeed, 2) + Math.pow(p1_ySpeed, 2) > 0.0002 || Math.pow(p2_xSpeed, 2) + Math.pow(p2_ySpeed, 2) > 0.0002){
-            System.out.println("P1x: "+  particle1.getX() + " P1y: " + particle1.getY() + "xspeed: " + particle1.getXSpeed() + " yspeed: " + particle1.getYSpeed());
-            System.out.println("P2x: "+  particle2.getX() + " P2y: " + particle2.getY() + "xspeed: " + particle2.getXSpeed() + " yspeed: " + particle2.getYSpeed());
-            System.out.println("JX: " + j_x + " JY: " + j_y + " J: " + j);
-            System.out.println("P1xSpeed: " + p1_xSpeed + " P1ySpeed: " + p1_ySpeed + " P2xSpeed: " + p2_xSpeed + " P2ySpeed: " + p2_ySpeed);
 
-            //double a = Math.pow(particle1.getX() - particle2.getX(), 2) + Math.pow(particle1.getY() - particle2.getY(), 2);
-            //double b = Math.pow(particle1.getRadius() + particle2.getRadius(), 2);
-            System.out.println(" segundo" + a + "==" + b);
-            throw new IllegalStateException();
-        }
         particle1.setXSpeed(p1_xSpeed);
         particle1.setYSpeed(p1_ySpeed);
         particle2.setXSpeed(p2_xSpeed);
         particle2.setYSpeed(p2_ySpeed);
+    }
+
+    public void crashMiddle(Particle particle1, Particle particle2){
+
+        double delta_r_x = particle2.getX() - particle1.getX();
+        double delta_r_y = particle2.getY() - particle1.getY();
+        double delta_v_x = particle2.getXSpeed() - particle1.getXSpeed();
+        double delta_v_y = particle2.getYSpeed() - particle1.getYSpeed();
+        double delta_v_r = delta_v_x*delta_r_x + delta_v_y*delta_r_y;
+        double sigma = particle2.getRadius() + particle1.getRadius();
+        double j = (2.0*particle1.getWeight()*delta_v_r)/(sigma);
+        double j_x = j*delta_r_x/sigma;
+        double j_y = j*delta_r_y/sigma;
+        double p1_xSpeed = particle1.getXSpeed() + j_x/particle1.getWeight();
+        double p1_ySpeed = particle1.getYSpeed() + j_y/particle1.getWeight();
+
+        particle1.setXSpeed(p1_xSpeed);
+        particle1.setYSpeed(p1_ySpeed);
+
     }
 
     public void evolveAllParticles(Double time) {
@@ -254,28 +248,29 @@ public class EventDrivenParticles {
     public double calculateMinCrashTime(List<Particle> particleList){
         double minTime = Double.MAX_VALUE;
         for (Particle particle: particleList){
-            double wallCrashTime = getParticleWallCrashTime(particle, minTime);
-            double particleCrashTime = getParticleCrashTime(particle, particleList, minTime);
+            if (particle.getId() >= 0) {
+                double wallCrashTime = getParticleWallCrashTime(particle, minTime);
+                double particleCrashTime = getParticleCrashTime(particle, particleList, minTime);
 
-            //System.out.println("WallcrashTime: " + wallCrashTime + " ParticleCrashTime: " + particleCrashTime);
-            if ( particleCrashTime < minTime){
-                if ( particleCrashTime < 0){
-                    System.out.println("CALCULATEMINCRASHTIMEERROR -> Particle");
-                    throw new IllegalStateException();
+                //System.out.println("WallcrashTime: " + wallCrashTime + " ParticleCrashTime: " + particleCrashTime);
+                if (particleCrashTime < minTime) {
+                    if (particleCrashTime < 0) {
+                        System.out.println("CALCULATEMINCRASHTIMEERROR -> Particle");
+                        throw new IllegalStateException();
+                    }
+                    minTime = particleCrashTime;
+                    wallCrash = false;
                 }
-                minTime = particleCrashTime;
-                wallCrash = false;
-            }
-            if ( wallCrashTime < minTime){
-                if ( wallCrashTime < 0){
-                    System.out.println("CALCULATEMINCRASHTIMEERROR -> Wall");
-                    throw new IllegalStateException();
+                if (wallCrashTime < minTime) {
+                    if (wallCrashTime < 0) {
+                        System.out.println("CALCULATEMINCRASHTIMEERROR -> Wall");
+                        throw new IllegalStateException();
+                    }
+                    minTime = wallCrashTime;
+                    wallCrash = true;
+                    wallParticle = particle;
                 }
-                minTime = wallCrashTime;
-                wallCrash = true;
-                wallParticle = particle;
             }
-
         }
 
         return minTime;
