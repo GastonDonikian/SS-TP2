@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class EventDrivenParticles {
+public class EventDrivenParticles extends main {
     List<Particle> particleList;
     List<List<Particle>> particlesThroughTime = new ArrayList<>();
     List<Double> timeThroughEvents = new ArrayList<>();
@@ -26,6 +26,7 @@ public class EventDrivenParticles {
     Boolean isVertical = false;
     Double timeInterval = null;
     Integer eventInterval = null;
+    Integer i;
 
     double delta_t = 0;
 
@@ -41,11 +42,12 @@ public class EventDrivenParticles {
         this.timeInterval = timeInterval;
     }
 
-    public EventDrivenParticles(Double x, Double y, Double cavitySize,Integer eventInterval) {
+    public EventDrivenParticles(Double x, Double y, Double cavitySize,Integer eventInterval,Integer i) {
         this.x = x;
         this.y = y;
         this.cavitySize = cavitySize;
         this.eventInterval = eventInterval;
+        this.i = i;
     }
 
     public void runSimulation() throws IOException {
@@ -58,7 +60,7 @@ public class EventDrivenParticles {
         p2.setVelocity(0, p2.getAngle());
         particleList.add(p2);
 
-        FileWriter fileWriter = new FileWriter("./resources/outputFile");
+        FileWriter fileWriter = new FileWriter("./resources/time_vs_slot/m=0.04/outputFile" + i);
         double evolveTime;
         saveState(particleList);
         int i = 0;
@@ -70,7 +72,6 @@ public class EventDrivenParticles {
             i++;
 
             evolveTime = calculateMinCrashTime(particleList);
-            //System.out.println("GlobalTime: " + globalTime + " evolveTime: " + evolveTime + " nextglobal: " + (globalTime + evolveTime));
             globalTime += evolveTime;
             evolveAllParticles(evolveTime);
             saveState(particleList);
@@ -88,7 +89,6 @@ public class EventDrivenParticles {
                 if (globalTime >= cutTime+delta_t) {
                     isFinished = true;
                 } else if (wallCrash) {
-                    System.out.println("x: " + wallParticle.getX() + ", y: " + wallParticle.getY());
                     if (isVertical) {
                         totalImpulse += wallParticle.getWeight()*Math.abs(wallParticle.getYSpeed())*2;
                     } else {
@@ -103,14 +103,12 @@ public class EventDrivenParticles {
         double totalPressure = totalImpulse/(delta_t*perimeter);
         double temperature = particleList.get(0).getWeight()*(Math.pow(particleList.get(0).getXSpeed(), 2)+Math.pow(particleList.get(0).getYSpeed(), 2))/2;
         temperature = Math.pow(0.01, 2)/2;
-        System.out.println("speed: " + (Math.pow(particleList.get(0).getXSpeed(), 2)+Math.pow(particleList.get(0).getYSpeed(), 2)));
-        System.out.println("totalPressure: " + totalPressure + ", temperature: " + temperature + ", t/p: " + temperature/totalPressure);
     }
 
     private boolean canRun(){
         int leftSide = 0;
         int rightSide = 0;
-        double epsilon = 0.01;
+        double epsilon = 0.05;
 
         for (Particle particle : particleList) {
             if (particle.getX() < x/2)

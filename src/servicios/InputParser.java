@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class InputParser {
+public class InputParser extends main {
     Integer numberOfParticles;
     Double x;
     Double y;

@@ -1,6 +1,8 @@
 package models;
 
-public class Particle {
+import sistema.EventDrivenParticles;
+
+public class Particle extends EventDrivenParticles {
 
     private Double x;
     private Double y;
