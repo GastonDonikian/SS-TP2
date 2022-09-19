@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class main {
-    public static void makeOvitoCage(Double x, Double y, Double cavitySize) throws IOException {
+    private static void makeOvitoCage(Double x, Double y, Double cavitySize) throws IOException {
         Double wallRadius = 0.001;
         int particles = 0;
         FileWriter fileWriter = new FileWriter("./resources/ovitoWallFile");
@@ -31,11 +31,17 @@ public class main {
         fileWriter.close();
     }
     public static void main(String[] args) throws IOException {
-        Integer N = 50;
+        for(int i = 0; i < 10;i++){
+            runMain(args,i);
+            System.out.println(i);
+        }
+    }
+    public static void runMain(String[] args, Integer i) throws IOException {
+        Integer N = 100;
         Double v = 0.01;
         Double x = 0.24;
         Double y = 0.09;
-        Double cavitySize = 0.01;
+        Double cavitySize = 0.04;
         Double radius = 0.0015;
         Double weight = 1.0;
         int argNumber = 0;
@@ -63,7 +69,7 @@ public class main {
         }
         InputGenerator inputGenerator = new InputGenerator(N, x, y, cavitySize, radius, v, weight);
         inputGenerator.generate();
-        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize,20);
+        EventDrivenParticles eventDrivenParticlesSimulation = new EventDrivenParticles(x, y, cavitySize,20,i);
         eventDrivenParticlesSimulation.runSimulation();
         //makeOvitoCage(x,y,cavitySize);
         //No la creo cada vez, solo cuando cambien el x, y o cavitySize jeje

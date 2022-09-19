@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class InputGenerator{
+public class InputGenerator extends main {
     Integer numberOfParticles;
     Double xLength;
     Double yLength;
